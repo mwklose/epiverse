@@ -17,3 +17,5 @@ Imports:
     ggplot2,
     purrr,
     tibble
+URL: https://github.com/mwklose/epiverse
+BugReports: https://github.com/mwklose/epiverse/issues
