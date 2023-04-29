@@ -1,11 +1,11 @@
-from src.utilities.data_generation.data_generator import DataGenerator
+from src.utilities.data_generation.data_generator_binary import DataGeneratorBinary
 import numpy as np
 from scipy.stats import binom
 import pandas as pd
 
 
-class DataGeneratorBinaryOutcomeTreatment(DataGenerator):
-    def __init__(self, n: int = 1000, baseline_prevalence: float = None, treatment_prevalence: float = None, risk_difference: float = None, risk_ratio: float = None, odds_ratio: float = None):
+class DataGeneratorBinaryOutcomeTreatment(DataGeneratorBinary):
+    def __init__(self, n: int = 10000, baseline_prevalence: float = None, treatment_prevalence: float = None, risk_difference: float = None, risk_ratio: float = None, odds_ratio: float = None):
         if treatment_prevalence is None:
             self.data = self.generate_data_by_effect_measure(
                 n=n, baseline_prevalence=baseline_prevalence, risk_difference=risk_difference, risk_ratio=risk_ratio, odds_ratio=odds_ratio)
