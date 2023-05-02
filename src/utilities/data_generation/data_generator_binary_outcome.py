@@ -13,6 +13,9 @@ class DataGeneratorBinaryOutcomeTreatment(DataGeneratorBinary):
             self.data = self.generate_data_by_prevalence(
                 n=n, baseline_prevalence=baseline_prevalence, treatment_prevalence=treatment_prevalence)
 
+    def generate_data(self):
+        pass
+
     def generate_data_by_prevalence(self, baseline_prevalence=None, treatment_prevalence=None):
         pass
 

@@ -1,8 +1,17 @@
+from abc import ABC, abstractmethod
 from src.utilities.data_generation.data_generator import DataGenerator
 from typing import Dict
 
 
-class DataGeneratorBinary(DataGenerator):
+class DataGeneratorBinary(DataGenerator, ABC):
+
+    @abstractmethod
+    def generate_data_by_prevalence(self):
+        pass
+
+    @abstractmethod
+    def generate_data_by_effect_measure(self):
+        pass
 
     def check_effect_measures(self, baseline_prevalence: float = None, risk_difference: float = None, risk_ratio: float = None, odds_ratio: float = None) -> Dict:
         if baseline_prevalence is None:
