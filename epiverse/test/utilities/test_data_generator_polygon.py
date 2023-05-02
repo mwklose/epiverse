@@ -1,6 +1,6 @@
 import unittest
-from src.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
-from src.utilities.geometry.point import Point
+from epiverse.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
+from epiverse.utilities.geometry.point import Point
 
 
 class TestDataGeneratorPolygon(unittest.TestCase):

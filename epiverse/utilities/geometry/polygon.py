@@ -1,6 +1,6 @@
 
 from typing import List
-from src.utilities.geometry.point import Point
+from epiverse.utilities.geometry.point import Point
 import itertools
 import numpy as np
 

@@ -1,5 +1,5 @@
 import unittest
-from src.utilities.data_generation.data_generator_binary_outcome import DataGeneratorBinaryOutcomeTreatment
+from epiverse.utilities.data_generation.data_generator_binary_outcome import DataGeneratorBinaryOutcomeTreatment
 import numpy as np
 
 

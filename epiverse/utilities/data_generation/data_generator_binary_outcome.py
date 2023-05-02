@@ -1,4 +1,4 @@
-from src.utilities.data_generation.data_generator_binary import DataGeneratorBinary
+from epiverse.utilities.data_generation.data_generator_binary import DataGeneratorBinary
 import numpy as np
 from scipy.stats import binom
 import pandas as pd

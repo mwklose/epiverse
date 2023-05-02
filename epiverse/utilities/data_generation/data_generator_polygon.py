@@ -1,5 +1,5 @@
-from src.utilities.data_generation.data_generator import DataGenerator
-from src.utilities.geometry.polygon import EpiPolygon
+from epiverse.utilities.data_generation.data_generator import DataGenerator
+from epiverse.utilities.geometry.polygon import EpiPolygon
 
 from typing import List
 import pandas as pd

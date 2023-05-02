@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.utilities.data_generation.data_generator import DataGenerator
+from epiverse.utilities.data_generation.data_generator import DataGenerator
 from typing import Dict
 
 

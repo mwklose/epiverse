@@ -1,6 +1,6 @@
 import unittest
-from src.utilities.geometry.point import Point
-from src.utilities.geometry.polygon import EpiPolygon
+from epiverse.utilities.geometry.point import Point
+from epiverse.utilities.geometry.polygon import EpiPolygon
 
 
 class TestPolygon(unittest.TestCase):

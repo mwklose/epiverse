@@ -1,8 +1,9 @@
 # Imports
 import numpy as np
 import pandas as pd
-from convex_hull.positivity_by_convex_hull import PositivityConvexHull
-from utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
+
+
+from epiverse.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
 
 
 if __name__ == "__main__":
@@ -17,3 +18,4 @@ if __name__ == "__main__":
     # 3. Compute distance for non-positive points
     print("Hello World")
     print(np.linspace(0, 10, 200))
+    print(DataGeneratorPolygon(["C1", "C2"], [0, 0], [1, 0], [1, 1]))
