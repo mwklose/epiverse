@@ -68,7 +68,12 @@ if __name__ == "__main__":
 
     pch_trapezoid.plot_2d_convex_hull(
         axes=ax[1, 1], alpha=0.1)
-    pch_trapezoid.plot_2d_intersection(axes=ax[1, 1])
+    pch_trapezoid.plot_2d_intersection(axes=ax[1, 1], plot_halfspaces=True)
+
+    print(pch_trapezoid.get_distance_point_to_hull(
+        np.array([0.1, 0.1]), pch_trapezoid.intersection))
+
+    ax[1, 1].scatter(x=0.1, y=0.1)
 
     pch_trapezoid.plot_2d_convex_hull(
         axes=ax[1, 0], plot_treated=True, plot_untreated=False)
@@ -102,7 +107,10 @@ if __name__ == "__main__":
 
     # Show Plot
     fig.supxlabel("C1")
-    fig.supylabel("C2")
+    rowlabs = ["Non-Positivity", "Semi-Positivity", "Positivity"]
+    for axes, row in zip(ax[:, 0], rowlabs):
+        axes.set_ylabel(row)
+
     ax[0, 0].set_title("Points and Convex Hull of Treated")
     ax[0, 1].set_title("Intersection of Convex Hulls")
     ax[0, 2].set_title("Points and Convex Hull of Untreated")
