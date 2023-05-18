@@ -8,7 +8,7 @@ DEFAULT_ITERATIONS = 10000
 
 
 class Bootstrap:
-    # Kwargs must be in order of
+    # Kwargs must be in order of what they are called as
     def __init__(self, data: pd.DataFrame, bootstrap_function: Callable, number_in_sample=None, number_of_iterations=None, **kwargs):
         self.data = data
         self.bootstrap_function = bootstrap_function
@@ -24,17 +24,18 @@ class Bootstrap:
         index_samples = rng.integers(low=0, high=self.data_size, size=(
             self.number_of_iterations, self.number_in_sample))
 
-        def test_fun(x):
+        def get_dataframe_samples(x):
             return self.data.iloc[x]
 
         with Pool() as pool:
             data_samples = np.apply_along_axis(
-                test_fun, axis=1, arr=index_samples)
+                get_dataframe_samples, axis=1, arr=index_samples)
 
             data_samples_and_kwargs = [(pd.DataFrame(data, columns=self.data.columns),
                                         *kwargs.values())
                                        for data in data_samples]
             results = pool.starmap(
                 self.bootstrap_function, data_samples_and_kwargs)
+
         results = pd.DataFrame(results)
         return results

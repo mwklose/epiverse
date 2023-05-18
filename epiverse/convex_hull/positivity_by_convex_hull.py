@@ -145,6 +145,8 @@ class PositivityConvexHull:
                 "Intercept", 1
             )
 
+            # TODO: need to change to use above function
+
             # Distances less than 0 are inside the halfspaces.
             invalid_treated_distances = invalid_treated @ self.nontreated_convex_hull.equations.T / \
                 np.linalg.norm(self.nontreated_convex_hull.equations)
