@@ -42,6 +42,7 @@ if __name__ == "__main__":
             axes=ax[0, 0], plot_treated=True, plot_untreated=False)
         pch_triangle.plot_2d_halfspaces(
             axes=ax[0, 2], plot_treated=False, plot_untreated=True)
+
     # Plot Upper Hull
     ax[0, 0].fill([0, 1.5, 0], [0, 1.5, 1.5], alpha=0.5)
     pch_triangle.plot_2d_convex_hull(
@@ -69,11 +70,6 @@ if __name__ == "__main__":
     pch_trapezoid.plot_2d_convex_hull(
         axes=ax[1, 1], alpha=0.1)
     pch_trapezoid.plot_2d_intersection(axes=ax[1, 1], plot_halfspaces=True)
-
-    print(pch_trapezoid.get_distance_point_to_hull(
-        np.array([0.1, 0.1]), pch_trapezoid.intersection))
-
-    ax[1, 1].scatter(x=0.1, y=0.1)
 
     pch_trapezoid.plot_2d_convex_hull(
         axes=ax[1, 0], plot_treated=True, plot_untreated=False)
@@ -114,6 +110,10 @@ if __name__ == "__main__":
     ax[0, 0].set_title("Points and Convex Hull of Treated")
     ax[0, 1].set_title("Intersection of Convex Hulls")
     ax[0, 2].set_title("Points and Convex Hull of Untreated")
+
+    set_equal_aspect = np.vectorize(lambda x: x.set_aspect("equal"))
+    set_equal_aspect(ax)
+
     plt.show()
 
     # 3. Compute distance for non-positive points

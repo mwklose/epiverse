@@ -1,10 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
 from typing import List, Tuple
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
+from scipy.spatial.distance import cdist, pdist
+import scipy.optimize as sciopt
 import scipy.spatial.qhull as qhull
+
 
 BUFFER = 0.2
 
@@ -23,15 +27,12 @@ class PositivityConvexHull:
         self.nontreated_convex_hull = self.get_convex_hull(
             self.nontreatment_data)
 
+        # Assume intersection exists at first.
+        self.intersection_flag = True
+        self.intersection = None
         self.valid_points = None
         self.invalid_points = None
-        self.intersection = None
-        # Items to hold:
-        # Original data sources, original list of variables
-        # Intersection between the two convex hulls, as polygon
-        # Intersection between the two convex hulls, as list of data
-        # List of all data not in intersection between both
-        # Ability to check additional, future data (ability to update or not)
+        self.intersection = self.get_hull_intersection()
 
     def get_hull_points(self) -> Tuple[pd.DataFrame]:
         treated_hull = self.treatment_data.loc[self.treated_convex_hull.vertices]
@@ -44,9 +45,10 @@ class PositivityConvexHull:
         return ConvexHull(covariates)
 
     def get_hull_intersection(self) -> ConvexHull:
-        # TODO: update to return convex hull of intersection.
+        if not self.intersection_flag:
+            return None
         # If already done intersection, just return that.
-        if self.intersection:
+        if self.intersection and self.intersection_flag:
             return self.intersection
         # Create list of halfspaces
         treated_halfspaces = self.treated_convex_hull.equations
@@ -58,12 +60,17 @@ class PositivityConvexHull:
         self.valid_points, self.invalid_points = self.generate_list_of_valid_points(
             halfspace_equations=total_halfspace)
 
+        if self.valid_points is None and self.invalid_points is None:
+            self.intersection_flag = False
+            return None
+
         interior_point = self.valid_points.iloc[0][self.list_of_variables]
         # Perform the intersection
         halfspace_intersection = HalfspaceIntersection(
             total_halfspace, interior_point=interior_point)
 
-        self.intersection = ConvexHull(halfspace_intersection.intersections)
+        self.intersection = ConvexHull(
+            halfspace_intersection.intersections, qhull_options="FN")
 
         # Return the intersection
         return self.intersection
@@ -72,55 +79,32 @@ class PositivityConvexHull:
 
         pass
 
-    def get_distance_point_to_hull(self, test_point: np.array, hull: ConvexHull) -> float:
+    def get_distance_point_to_hull(self, test_point: np.array, hull: ConvexHull) -> Tuple[float, Tuple]:
         # Get points on simplices to check
         vertex_points = hull.points[hull.vertices]
-        simplex_points = hull.points[hull.simplices]
 
-        # Algorithm:
-        # 1. Check point in comparison to all half spaces in dimension n
-        tp = np.insert(test_point, len(self.list_of_variables), 1)
-        distance_check = hull.equations @ tp.T
-        halfspace_violations = np.sum(distance_check > 0)
+        # Use minimization algorithm for convex cmombinations of the vertices.
+        constraints = [
+            # Convex Constraint - have values add to 1
+            sciopt.LinearConstraint(
+                np.ones(vertex_points.shape[0]), 1, 1),
+            # Constraint: have all individual values be positive, between 0 and 1
+            sciopt.LinearConstraint(np.identity(vertex_points.shape[0]), 0, 1)
+        ]
 
-        # If there are no halfspace violations, then the point is inside the hull.
-        if halfspace_violations == 0:
-            return 0
+        # For now, only compute Euclidean distance.
+        def objective_function(x):
+            vector_distance = test_point - vertex_points.T @ x
 
-        dim = len(simplex_points.shape) - 1
+            distance = np.linalg.norm(vector_distance)
+            return distance
 
-        # Then, we start checking from dimension 1 items (points) to the nth dimension (hyperplanes)
-        # If any lower dimension is greater than a higher dimension, we stop preemptively.
-        print(vertex_points)
-        distance_to_vertices = np.apply_along_axis(
-            lambda x: np.linalg.norm(x - test_point), axis=1, arr=vertex_points)
+        initial_guess = [1/vertex_points.shape[0]] * vertex_points.shape[0]
 
-        # The closest vertex is guaranteed to be in the answer somehow.
-        minimum_vertex = np.argmin(distance_to_vertices)
-        minimum_vertex_distance = np.min(distance_to_vertices)
+        calculation = sciopt.minimize(
+            objective_function, x0=initial_guess, constraints=constraints)
 
-        minimum_vertex_neighbors = hull.neighbors[minimum_vertex]
-
-        # Now, loop through the remaining dimensions and see if any distances larger
-        # Below is for the hyperplane
-        mesh = np.meshgrid(minimum_vertex,
-                           *[minimum_vertex_neighbors for _ in range(dim, 1, -1)])
-        print(f"mesh: {mesh}")
-
-        def find_results(x):
-            print(f"x={x}")
-            # TODO: change to pseudo-inverse, which allows for computing across dimensions
-            # TODO: change to distance rather than printing the result.
-            print(vertex_points[x].T)
-            return np.linalg.solve(
-                vertex_points[x].T,
-                np.ones(dim)
-            )
-
-        w = np.apply_along_axis(find_results, axis=0, arr=mesh)
-
-        # Compute distance of point to hyperplane using wx+b / ||w|| formula
-        print(results)
+        return calculation.fun, calculation.x
 
     def generate_distances_of_invalid_points(self, metric: str = "Euclidean") -> pd.DataFrame:
         if not self.intersection:
@@ -136,43 +120,19 @@ class PositivityConvexHull:
             invalid_treated = invalid_treated[self.list_of_variables]
             invalid_untreated = invalid_untreated[self.list_of_variables]
 
-            invalid_treated.insert(
-                len(self.list_of_variables),
-                "Intercept", 1
-            )
-            invalid_untreated.insert(
-                len(self.list_of_variables),
-                "Intercept", 1
+            invalid_treated_distances = invalid_treated.apply(
+                lambda x: self.get_distance_point_to_hull(
+                    np.array(x), self.intersection),
+                axis=1
             )
 
-            # TODO: need to change to use above function
-
-            # Distances less than 0 are inside the halfspaces.
-            invalid_treated_distances = invalid_treated @ self.nontreated_convex_hull.equations.T / \
-                np.linalg.norm(self.nontreated_convex_hull.equations)
-            # Internal function first masks all values < 0 with the maximum, and then finds the minimum
-            # The minimum is the distance to a boundary.
-            invalid_treated_distances = invalid_treated_distances.apply(
-                lambda x: min(x.mask(lambda y: y < 0, other=max(x))), axis=1
-            )
-
-            invalid_untreated_distances = invalid_untreated @ self.treated_convex_hull.equations.T / \
-                np.linalg.norm(self.treated_convex_hull.equations)
-
-            invalid_untreated_distances = invalid_untreated_distances.apply(
-                lambda x: min(x.mask(lambda y: y < 0, other=max(x))), axis=1
-            )
-
-            distances = pd.concat([
-                invalid_treated_distances, invalid_untreated_distances
-            ])
-
-            return distances
+            return invalid_treated_distances
 
         raise Exception(f"Metric: {metric} not defined yet.")
 
     def generate_list_of_valid_points(self, halfspace_equations: np.array = None) -> pd.DataFrame:
-        if self.valid_points and self.invalid_points:
+
+        if self.valid_points is not None and self.invalid_points is not None:
             return self.valid_points, self.invalid_points
 
         # Obtain interior points (required by HalfspaceIntersection)
@@ -204,7 +164,7 @@ class PositivityConvexHull:
             except qhull.QhullError:
                 # We were right before; no point exists in both halfspaces.
                 self.intersection = None
-                return None
+                return None, None
 
             # By miracle, if this works, return.
             return self.intersection
@@ -230,6 +190,11 @@ class PositivityConvexHull:
             repeats=[sum(~treated_in_untreated_hull),
                      sum(~untreated_in_treated_hull)]
         )
+
+        invalid_point_distances = self.generate_distances_of_invalid_points()
+
+        self.invalid_points["Distance"] = invalid_point_distances.transform(
+            lambda x: x[0])
 
         return self.valid_points, self.invalid_points
 
@@ -332,7 +297,6 @@ class PositivityConvexHull:
                     eqs[i, 2]], colors="navy", alpha=0.5)
 
     # Helper function for sorting by CCW, for intersections mainly.
-
     def sort_ccw(self, points: np.array) -> np.array:
         # To sort CCW, find average value, and then do angles between points.
         average_point = np.mean(points, axis=0)
