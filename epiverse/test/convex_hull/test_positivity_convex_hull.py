@@ -19,9 +19,6 @@ class TestPositivityConvexHull(unittest.TestCase):
         self.assertTrue(len(pch.treated_convex_hull.vertices) >= 3)
         self.assertAlmostEqual(0.5, pch.treated_convex_hull.volume, places=1)
 
-    def test_get_hull_intersection(self):
-        self.assertFalse(True)
-
     def test_get_distance_point_to_hull(self):
         dgp = DataGeneratorPolygon(["C1", "C2"], [0, 0], [1, 0], [1, 1])
         data = dgp.generate_data(n=60000, seed=100)
@@ -45,10 +42,29 @@ class TestPositivityConvexHull(unittest.TestCase):
         wrong_distance = pch_trapezoid.get_distance_point_to_hull(
             np.array([1.40205097, 1.48760352]), pch_trapezoid.get_hull_intersection())
 
-        print(f"Known wrong distance: {wrong_distance}")
+        self.assertFalse(wrong_distance[0] > 0.1)
 
     def test_check_positivity_point(self):
-        self.assertFalse(True)
+        upper_trapezoid_data = DataGeneratorPolygon(
+            ["C1", "C2"], [0, 2], [1, 0.5], [2, 0.5], [3, 2]).generate_data(n=100, seed=123)
+        lower_trapezoid_data = DataGeneratorPolygon(
+            ["C1", "C2"], [0, 0], [3, 0], [2, 1.5], [1, 1.5]).generate_data(n=100, seed=123)
+
+        pch_trapezoid = PositivityConvexHull(
+            upper_trapezoid_data, lower_trapezoid_data, ["C1", "C2"])
+
+        self.assertFalse(
+            pch_trapezoid.check_point_for_positivity(np.array([0, 0])))
+
+        self.assertFalse(
+            pch_trapezoid.check_point_for_positivity(np.array([4, 4])))
+
+        distance = pch_trapezoid.get_distance_point_to_hull(
+            np.array([2, 1]), pch_trapezoid.get_hull_intersection())
+
+        self.assertTrue(
+            pch_trapezoid.check_point_for_positivity(np.array([2, 1]))
+        )
 
     def test_generate_distances_of_invalid_points(self):
         # 1b. Do for partial nonpositivity
@@ -63,6 +79,13 @@ class TestPositivityConvexHull(unittest.TestCase):
         pch_trapezoid.get_distance_point_to_hull(
             np.array([1.40205097, 1.48760352]), pch_trapezoid.get_hull_intersection())
 
+        known_bad = pch_trapezoid.get_distance_point_to_hull(
+            np.array([2.072644, 0.682927]), pch_trapezoid.get_hull_intersection())
+
         valid, invalid = pch_trapezoid.generate_list_of_valid_points()
 
-        self.assertFalse(True)
+        # fig = px.scatter(
+        #     x=invalid["C1"], y=invalid["C2"], color=invalid["Distance"])
+        # fig.show()
+
+        self.assertTrue(invalid[invalid["Distance"].isnull()].empty)

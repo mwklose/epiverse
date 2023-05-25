@@ -76,10 +76,21 @@ class PositivityConvexHull:
         return self.intersection
 
     def check_point_for_positivity(self, test_point: np.array):
+        intersection = self.get_hull_intersection()
 
-        pass
+        if intersection is None:
+            return False
+
+        test_point_intercept = np.insert(test_point, test_point.shape[-1], 1)
+        halfspace_checks = intersection.equations @ test_point_intercept
+
+        within_all_halfspaces = np.all(halfspace_checks < 0)
+
+        return within_all_halfspaces
 
     def get_distance_point_to_hull(self, test_point: np.array, hull: ConvexHull) -> Tuple[float, Tuple]:
+        if hull is None:
+            raise Exception("Provided hull must be present")
         # Get points on simplices to check
         vertex_points = hull.points[hull.vertices]
 
@@ -116,17 +127,15 @@ class PositivityConvexHull:
             self.invalid_points["Origin"] == "Untreated")]
 
         if metric == "Euclidean":
-            # Equation is abs(wx + b)/ ||w|| for the normal equations of each plane.
-            invalid_treated = invalid_treated[self.list_of_variables]
-            invalid_untreated = invalid_untreated[self.list_of_variables]
+            invalid_points = self.invalid_points[self.list_of_variables]
 
-            invalid_treated_distances = invalid_treated.apply(
+            invalid_distances = invalid_points.apply(
                 lambda x: self.get_distance_point_to_hull(
                     np.array(x), self.intersection),
                 axis=1
             )
 
-            return invalid_treated_distances
+            return invalid_distances
 
         raise Exception(f"Metric: {metric} not defined yet.")
 
