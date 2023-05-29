@@ -42,3 +42,31 @@ class TestDataGeneratorBinaryConfoundingTriangle(unittest.TestCase):
 
         trial(0.4, 0.4, 0.2, 1.5)
         trial(0.6, 0.2, 0.15, 3.0)
+
+    def test_generate_by_counterfactual(self):
+
+        def trial(y1=0.4, y0=0.2, treatment_prevalence=0.5, confounder_prevalence=0.25):
+
+            dgb = DataGeneratorBinaryConfoundingTriangle(
+                n=10000,
+                treatment_prevalence=treatment_prevalence,
+                confounder_prevalence=confounder_prevalence,
+                y1=y1,
+                y0=y0
+            )
+
+            data = dgb.generate_data()
+
+            obs_y = data.groupby(["A"]).apply(
+                lambda x: np.mean(x.Y)
+            )
+
+            counterfactuals_close = np.isclose(
+                obs_y, np.array([y0, y1]), atol=5e-2)
+            print(f"ObsY: {obs_y}\nTest: {counterfactuals_close}\n")
+            self.assertTrue(np.all(counterfactuals_close))
+
+        trial()
+        trial(0.5, 0.3)
+        trial(0.5, 0.3, 0.4, 0.2)
+        trial(0.3, 0.15, 0.75, 0.5)
