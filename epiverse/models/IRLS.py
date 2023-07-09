@@ -10,7 +10,7 @@ import numpy as np
 
 class IterativelyReweightedLeastSquares(ModelSpecification):
 
-    def __init__(self, p: int = 2):
+    def __init__(self, p: int = 2, *args, **kwargs):
         """Iteratively Reweighted Least Squares is a method for finding the optimal @beta
         solutions for a L-p norm problem. 
 
@@ -19,6 +19,8 @@ class IterativelyReweightedLeastSquares(ModelSpecification):
         """
 
         self.p = p
+        self.beta = None
+        self.weights = None
 
     # For implementation details
     def fit(self, outcome: np.array, exposure: np.array, ε=1e-6) -> Tuple[np.array]:
@@ -41,4 +43,10 @@ class IterativelyReweightedLeastSquares(ModelSpecification):
                 previous_beta) - np.linalg.norm(beta))
             previous_beta = beta
             i += 1
+
+        self.beta = beta
+        self.weights = weights
         return beta, weights
+
+    def predict(self, exposure: np.array) -> np.array:
+        return exposure @ self.beta

@@ -4,8 +4,12 @@ from abc import ABC, abstractmethod
 class ModelSpecification(ABC):
 
     def __init__(self):
+        self._is_fit = False
+
+    @abstractmethod
+    def fit(self, **kwargs):
         pass
 
     @abstractmethod
-    def fit(self, outcome, exposure, initial_weights, ε=1e-6):
+    def predict(self, exposure, **kwargs):
         pass
