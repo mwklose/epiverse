@@ -3,11 +3,6 @@ from epiverse.models.model_specification import ModelSpecification
 import numpy as np
 
 
-# TODO: need method for iteratively reweighted least squares.
-# Inputs: outcomes and inputs, optional starting weights matrix
-# Have be recursive, with compiling?
-
-
 class IterativelyReweightedLeastSquares(ModelSpecification):
 
     def __init__(self, p: int = 2, *args, **kwargs):
@@ -22,6 +17,7 @@ class IterativelyReweightedLeastSquares(ModelSpecification):
         self.beta = None
         self.weights = None
 
+    # TODO: fix this to align with model specification better.
     # For implementation details
     def fit(self, outcome: np.array, exposure: np.array, ε=1e-6) -> Tuple[np.array]:
 
