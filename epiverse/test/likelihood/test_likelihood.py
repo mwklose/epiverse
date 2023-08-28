@@ -1,32 +1,29 @@
 import unittest
-from epiverse.likelihood.likelihood import Likelihood
+from epiverse.likelihood.binomial_loglikelihood import BinomialLogLikelihood
 from epiverse.data.prostatic import ProstaticData
 from scipy.special import expit
 import numpy as np
+
+import statsmodels.formula.api as smf
 
 
 class TestLikelihood(unittest.TestCase):
 
     def test_binomial(self):
         data = ProstaticData.retrieve_data()
-        codebook = ProstaticData.retrieve_codebook()
+        # codebook = ProstaticData.retrieve_codebook()
 
-        data["Dead"] = data["Status"].transform(lambda x: x >= 1)
+        data["Dead"] = data["Status"].transform(lambda x: int(x >= 1))
+        data_subset = data[["Dead", "Stage", "AgeYrs", "Wt"]].dropna()
 
-        def ll(parameters, data):
-            p1 = expit(parameters[0] + parameters[1] * data["BM"])
+        bin_ll = BinomialLogLikelihood(
+            outcomes=data_subset["Dead"].to_numpy(),
+            data=data_subset[["Stage", "AgeYrs", "Wt"]].to_numpy())
 
-            b_ll = data["Dead"] * np.log(p1) + \
-                (1 - data["Dead"]) * np.log(1 - p1)
+        log_reg = smf.logit("Dead ~ Stage + AgeYrs + Wt",
+                            data=data_subset).fit()
 
-            total_ll = np.sum(b_ll)
-            return total_ll
-
-        bin_ll = Likelihood(
-            loglikelihood_contribution=ll,
-            data=data[["BM", "Dead"]]
+        self.assertAlmostEqual(
+            log_reg.llf,
+            bin_ll(log_reg.params.to_numpy())
         )
-
-        print(bin_ll.full_logeval(np.array([0, 0])))
-
-        print(bin_ll.maximize(initial_values=[0, 0]))

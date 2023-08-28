@@ -11,6 +11,7 @@ class DiscreteDensity(DensityModelSpecification):
         self.args = args
         self.kwargs = kwargs
 
+        print(f"kwargs: {kwargs}\n\n")
         # Shortcut if provide dataset as Pandas Dataframe.
         if "dataset" in kwargs and isinstance(kwargs["dataset"], pd.DataFrame):
             self.data = kwargs["dataset"]
@@ -41,14 +42,15 @@ class DiscreteDensity(DensityModelSpecification):
 
         # Process kwargs for covariate data
         for k, value in kwargs.items():
-            # TODO: issues with implementation
 
+            print(f"{k}: {type(value)}")
             v = value
             if isinstance(v, pd.Series):
                 v = value.to_numpy()
+            if isinstance(v, dict):
+                v = pd.Series(value, name=k).to_numpy()
 
             if not isinstance(v, np.ndarray):
-                print("CONTINUING")
                 continue
             if data_length is None:
                 data_length = v.shape[0]
@@ -63,6 +65,7 @@ class DiscreteDensity(DensityModelSpecification):
         self.names = list(self.data.columns)
         # Guess about whether this density is marginal or conditional.
         self.is_conditional = True
+        self._is_fit = False
         self.conditioning_set = None
 
     def fit(self, event_variable: str | int, conditioning_set: str | int | List = None, conditioning_values: pd.DataFrame = None) -> DensityModelSpecification:
