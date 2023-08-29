@@ -6,11 +6,15 @@ import numpy as np
 
 class BinomialLogLikelihood(LogLikelihood):
 
-    def fit_loglikelihood(self, outcomes: np.ndarray, data: np.ndarray) -> Callable:
+    def fit_loglikelihood(self, outcomes: np.ndarray, data: np.ndarray, intercept: bool = True) -> Callable:
 
         def binomial_loglikelihood(parameters: np.ndarray) -> float:
-            data_with_intercept = np.hstack(
-                (np.ones((data.shape[0], 1)), data))
+            if intercept:
+                data_with_intercept = np.hstack(
+                    (np.ones((data.shape[0], 1)), data))
+            else:
+                data_with_intercept = data
+
             px = expit(data_with_intercept @ parameters)
 
             successes = outcomes @ np.log(px)

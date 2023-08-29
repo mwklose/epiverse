@@ -28,13 +28,29 @@ gc = GComputation(
                                  ["A2", "A1", "W2", "W1"]]
 )
 
-always_treat = gc.predict([1, 1, 1])
-never_treat = gc.predict([0, 0, 0])
-natural_course = gc.predict([
-    df["A0"],
-    df["A1"],
-    df["A2"]
-])
 
-print(
-    f"Always treat: {always_treat}, never treat: {never_treat}, natural course: {natural_course}")
+def always_treat_func(t, row):
+    return 1
+
+
+def never_treat_func(t, row):
+    return 0
+
+
+def as_treated_func(t, row):
+    return row[t]
+
+
+def counterfactual_func(t, row):
+    return 1 - row[t]
+
+
+always_treat = gc.predict(always_treat_func)
+never_treat = gc.predict(never_treat_func)
+as_treated = gc.predict(as_treated_func)
+counterfactual = gc.predict(counterfactual_func)
+
+print(f"""\talways: {always_treat}, 
+      never: {never_treat}
+      as treated: {as_treated}, 
+      counterfactual: {counterfactual}""")

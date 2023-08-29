@@ -3,7 +3,7 @@ from epiverse.models.outcome_model_specification import OutcomeModelSpecificatio
 from epiverse.models.model_specification import ModelSpecification
 import numpy as np
 import pandas as pd
-from typing import List
+from typing import List, Callable
 
 
 # TODO: refactor such that
@@ -74,18 +74,17 @@ class GComputation(ModelSpecification):
     # - The densities are multiplied by the expected outcome
     # - Each piece's accumulation is then added together over all possibilities.
 
-    def predict(self, exposure: List, **kwargs):
+    # TODO: change exposure such that it is callable to allow for estimating via functions.
+    def predict(self, exposure: Callable, **kwargs):
 
-        if not isinstance(exposure, list) or len(exposure) != len(self.treatment_indices):
-            raise Exception(
-                "Exposure must be a list with the same length as the number of treatment columns")
+        # TODO: check if callable takes 2 arguments
 
         # Deep copy needed because otherwise, we would overwrite the original data.
         gcomp = self.data.copy(deep=True)
         gcomp_labels = self.labels.copy()
 
-        for i, e in enumerate(exposure):
-            gcomp[self.treatment_columns[i]] = e
+        for tc in self.treatment_columns:
+            gcomp[tc] = gcomp.apply(lambda x: exposure(tc, x), axis=1)
 
         # Step 1: predict the outcome model under augmented data
         outcome_subset = gcomp[self.covariate_conditioning_sets[-1]
@@ -95,6 +94,7 @@ class GComputation(ModelSpecification):
 
         gcomp["predicted_outcomes"] = self.outcome_model.predict(
             gcomp[self.covariate_conditioning_sets[-1]].to_numpy())
+
         # Step 2: for each of the density models, get a prediction as well.
         gcomp[f"acc_density"] = 1
 

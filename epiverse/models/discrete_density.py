@@ -11,7 +11,6 @@ class DiscreteDensity(DensityModelSpecification):
         self.args = args
         self.kwargs = kwargs
 
-        print(f"kwargs: {kwargs}\n\n")
         # Shortcut if provide dataset as Pandas Dataframe.
         if "dataset" in kwargs and isinstance(kwargs["dataset"], pd.DataFrame):
             self.data = kwargs["dataset"]
@@ -42,8 +41,6 @@ class DiscreteDensity(DensityModelSpecification):
 
         # Process kwargs for covariate data
         for k, value in kwargs.items():
-
-            print(f"{k}: {type(value)}")
             v = value
             if isinstance(v, pd.Series):
                 v = value.to_numpy()

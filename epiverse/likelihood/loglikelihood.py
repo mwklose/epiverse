@@ -36,18 +36,23 @@ class LogLikelihood(ABC):
     def eval(self, parameters) -> float:
         return self.loglikelihood_function(parameters)
 
+    def negative_loglikelihood(self, parameters) -> float:
+        return -1 * self.loglikelihood_function(parameters)
+
     def variance(self, parameters) -> np.ndarray:
         # Variance is second derivative of loglikelihood function.
 
         pass
 
-    # TODO: determine if this is relevant
-
     def maximize(self, initial_values: List = [], *args, **kwargs) -> List:
-        optimization_result = optim.minimize(self.eval,
-                                             x0=initial_values)
-        if not optimization_result.success:
-            raise Exception(
-                f"Optimization failed, {optimization_result.message}\nLast iter: {optimization_result.x}")
+        nelder_mead_optim = optim.minimize(self.negative_loglikelihood, method="Nelder-Mead",
+                                           x0=initial_values)
 
-        return optimization_result.x
+        bfgs_optim = optim.minimize(self.negative_loglikelihood,
+                                    x0=nelder_mead_optim.x)
+
+        if not bfgs_optim.success:
+            raise Exception(
+                f"Optimization failed, {bfgs_optim.message}\nLast iter: {bfgs_optim.x}")
+
+        return bfgs_optim.x

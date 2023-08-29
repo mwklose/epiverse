@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from epiverse.models.outcome_model_specification import OutcomeModelSpecification
-from epiverse.likelihood.likelihood import Likelihood
+from epiverse.likelihood.binomial_loglikelihood import BinomialLogLikelihood
 from scipy.special import expit
 
 
@@ -12,34 +12,18 @@ class LogisticRegression(OutcomeModelSpecification):
         self.betas = np.array([])
 
     def fit(self, outcome: np.array, exposure: np.array, **kwargs) -> OutcomeModelSpecification:
-        nrows, ncols = exposure.shape
 
-        if self.intercept:
-            exposure = np.hstack((np.ones((nrows, 1)), exposure))
+        bll = BinomialLogLikelihood(
+            outcomes=outcome, data=exposure)
 
-        betas = [0] * (ncols + self.intercept)
+        nrows, ncols = bll.data.shape
+        betas = [3] * (ncols + self.intercept)
 
-        def logistic_regression_loglikelihood(parameters, data):
-            parameters_as_np = np.array(parameters)
-
-            px = expit(exposure @ parameters)
-
-            ll_contributions = outcome * np.log(px) + \
-                (1 - outcome) * np.log(1-px)
-
-            ll_total = np.sum(ll_contributions)
-            return ll_total
-
-        logistic_ll = Likelihood(
-            loglikelihood_contribution=logistic_regression_loglikelihood
-        )
-
-        self.betas = logistic_ll.maximize(initial_values=betas)
+        self.betas = bll.maximize(initial_values=betas)
         self._is_fit = True
         return self
 
     def predict(self, observations: np.ndarray | pd.DataFrame):
-
         if not self._is_fit:
             raise Exception("Logistic regression must first be fit.")
         if isinstance(observations, pd.DataFrame):
