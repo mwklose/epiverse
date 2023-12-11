@@ -128,6 +128,7 @@ class DAG:
     def get_ancestors_from_set(self, set_of_ancestors: Set) -> List[List]:
         if not set_of_ancestors:  # Set is empty
             return [[]]
+        # TODO: finish
 
     def binary_confounding_triangle(mean_a: float, mean_l: float, mean_y0: float, mean_y1: float, n: int):
         DAG._check_proportion(mean_a)
