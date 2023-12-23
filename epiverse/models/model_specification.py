@@ -1,23 +1,32 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
-from typing import List
+from typing import List, Callable
 
 
+@DeprecationWarning
 class ModelSpecification(ABC):
 
     def __init__(self):
         self._is_fit = False
 
     @abstractmethod
-    def fit(self, **kwargs):
+    def predict(self, **kwargs):
         pass
 
     @abstractmethod
-    def predict(self, exposure, **kwargs):
+    def estimate(self, **kwargs):
         pass
 
-    def check_np_pd(self, dataset: np.ndarray | pd.DataFrame, **kwargs):
+    @abstractmethod
+    def vcov(self, **kwargs):
+        pass
+
+    @abstractmethod
+    def fit(self, **kwargs):
+        pass
+
+    def check_np_pd(self, dataset: pd.DataFrame, **kwargs):
         if isinstance(dataset, np.ndarray):
             if "labels" in kwargs:
                 self.labels = self.kwargs["labels"]

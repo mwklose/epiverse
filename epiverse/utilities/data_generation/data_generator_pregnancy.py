@@ -155,17 +155,17 @@ class DataGeneratorPregnancy():
 
         # Lastly, reformat so it is in survival format (somewhat).
         untreated_preg = ((seen_pregnancies.loc[seen_pregnancies.untreated_event >= 0])
-                          .sort_values(by=["id", "untreated_event"], ascending=[True, False], kind="stable", key=lambda x: np.sign(x))
+                          .sort_values(by=["id", "ga"], kind="stable")
                           .groupby("id")
                           .head(1))
 
         treated_preg = ((seen_pregnancies.loc[seen_pregnancies.treated_event >= 0])
-                        .sort_values(by=["id", "treated_event"], ascending=[True, False], kind="stable", key=lambda x: np.sign(x))
+                        .sort_values(by=["id", "ga"], kind="stable")
                         .groupby("id")
                         .head(1))
 
         observed_preg = ((seen_pregnancies.loc[seen_pregnancies.observed_event >= 0])
-                         .sort_values(by=["id", "observed_event"], ascending=[True, False], kind="stable", key=lambda x: np.sign(x))
+                         .sort_values(by=["id", "ga"], kind="stable")
                          .groupby("id")
                          .head(1))
 
