@@ -1,6 +1,7 @@
 from epiverse.utilities.data_generation import DataGeneratorPregnancy
 from epiverse.survival import KaplanMeier, AalenJohansen
 import pandas as pd
+import numpy as np
 
 
 def test_data_generator_pregnancy():
@@ -43,11 +44,17 @@ def test_dgp_aj():
     crisk_fd_30w = aj.predict(30, cause=1)
     crisk_lb_30w = aj.predict(30, cause=2)
 
+    print(crisk_fd_30w)
+
     # Numbers from r: Surv(ga, observed_event, type="mstate") ~ 1
-    assert abs(crisk_fd_30w -
+    assert abs(crisk_fd_30w[0, 0] -
                0.12901) <= 0.0001, "Fetal Death calculation incorrect."
-    assert abs(crisk_lb_30w -
+    assert abs(np.sqrt(
+        crisk_fd_30w[0, 1]) - 0.020712575) <= 0.0001, "Fetal Death variance incorrect."
+    assert abs(crisk_lb_30w[0, 0] -
                0.1246) <= 0.0001, "Live birth calculation incorrect."
+    assert abs(np.sqrt(crisk_lb_30w[0, 1]) -
+               0.021277229) <= 0.0001, "Live birth variance incorrect."
 
 
 def test_dgp_event_indicator():
