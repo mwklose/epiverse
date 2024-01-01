@@ -31,4 +31,4 @@ jobs:
         pip install -e .
     - name: Test with pytest
       run: |
-        pytest positivity_convex_hull/test/
+        pytest epiverse/test/
