@@ -3,6 +3,7 @@ cycler
 -e .
 fonttools
 kiwisolver
+icecream
 matplotlib
 networkx
 numpy
