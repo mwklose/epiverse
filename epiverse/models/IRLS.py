@@ -19,8 +19,6 @@ class IterativelyReweightedLeastSquares(EffectModel):
         self.beta, self.weights = self._fit_procedure()
         pass
 
-    # TODO: fix this to align with model specification better.
-    # For implementation details
     def _fit_procedure(self) -> Tuple[np.array]:
         i = 0
         difference = 1e6
@@ -43,6 +41,8 @@ class IterativelyReweightedLeastSquares(EffectModel):
     def predict(self, exposure: np.array) -> np.array:
         return exposure @ self.beta
 
+    # TODO: fix this to align with model specification better.
+    # For implementation details
     def params(self):
         raise Exception("Unimplemented.")
 
