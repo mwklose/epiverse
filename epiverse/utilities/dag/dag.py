@@ -84,7 +84,7 @@ class DAG:
         node_keys = node_dict.keys()
         self.graph_structure.add_nodes_from(node_keys)
 
-        self.node_dict = self.node_dict | node_dict
+        self.node_dict = {**self.node_dict, **node_dict}
 
         return
 

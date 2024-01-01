@@ -1,13 +1,14 @@
-from epiverse.models.density_model_specification import DensityModelSpecification
 import numpy as np
 import pandas as pd
-from typing import Dict, List
+from typing import Dict, List, Union
 from collections.abc import Iterable
 
+from icecream import ic
 
-class DiscreteDensity(DensityModelSpecification):
 
-    def __init__(self, *args, **kwargs):
+class DiscreteDensity():
+
+    def __init__(self, *args, **kwargs) -> None:
         self.args = args
         self.kwargs = kwargs
 
@@ -65,7 +66,7 @@ class DiscreteDensity(DensityModelSpecification):
         self._is_fit = False
         self.conditioning_set = None
 
-    def fit(self, event_variable: str | int, conditioning_set: str | int | List = None, conditioning_values: pd.DataFrame = None) -> DensityModelSpecification:
+    def fit(self, event_variable: Union[str, int], conditioning_set: Union[str, int, List] = None, conditioning_values: pd.DataFrame = None):
         # Error checking on event_variable
         if event_variable is None:
             raise Exception(

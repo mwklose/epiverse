@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.express as px
 from epiverse.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
 from epiverse.convex_hull.positivity_by_convex_hull import PositivityConvexHull
 
@@ -83,9 +82,5 @@ class TestPositivityConvexHull(unittest.TestCase):
             np.array([2.072644, 0.682927]), pch_trapezoid.get_hull_intersection())
 
         valid, invalid = pch_trapezoid.generate_list_of_valid_points()
-
-        # fig = px.scatter(
-        #     x=invalid["C1"], y=invalid["C2"], color=invalid["Distance"])
-        # fig.show()
 
         self.assertTrue(invalid[invalid["Distance"].isnull()].empty)

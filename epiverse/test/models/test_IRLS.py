@@ -1,9 +1,8 @@
-import unittest
 import numpy as np
 from epiverse.models.IRLS import IterativelyReweightedLeastSquares
 
 
-class TestIRLS(unittest.TestCase):
+class TestIRLS():
 
     def test_IRLS(self):
         rng = np.random.default_rng()
@@ -11,15 +10,18 @@ class TestIRLS(unittest.TestCase):
         outcome = exposure @ np.array([3, -1, 2])
 
         # Check if works under deterministic
-        irls = IterativelyReweightedLeastSquares()
-        beta, var = irls.fit(outcome, exposure)
+        irls = IterativelyReweightedLeastSquares(
+            outcome=outcome, exposure=exposure)
 
-        self.assertTrue(np.allclose(np.array([3, -1, 2]), beta))
-        self.assertTrue(np.allclose(np.eye(10000), var))
+        assert np.allclose(np.array([3, -1, 2]), irls.beta)
+
+        assert np.allclose(np.eye(10000), irls.weights)
 
         # Check when adding randomness
         outcome += rng.normal(0, 0.1, 10000)
-        beta, var = irls.fit(outcome, exposure)
+        irls2 = IterativelyReweightedLeastSquares(
+            outcome, exposure)
 
-        self.assertTrue(np.allclose(np.array([3, -1, 2]), beta, atol=1e-3))
-        self.assertTrue(np.allclose(np.eye(10000), var))
+        assert np.allclose(np.array([3, -1, 2]), irls2.beta, atol=1e-3)
+
+        assert np.allclose(np.eye(10000), irls.weights)

@@ -1,48 +1,53 @@
 from typing import Callable, Tuple
-from epiverse.models.model_specification import ModelSpecification
+from epiverse.models import EffectModel
 import numpy as np
+from dataclasses import dataclass
 
 
-class IterativelyReweightedLeastSquares(ModelSpecification):
+@dataclass
+class IterativelyReweightedLeastSquares(EffectModel):
+    outcome: np.array
+    exposure: np.array
+    eps: float = 1e-6
+    p: int = 2
 
-    def __init__(self, p: int = 2, *args, **kwargs):
-        """Iteratively Reweighted Least Squares is a method for finding the optimal @beta
-        solutions for a L-p norm problem. 
+    def __post_init__(self):
+        if self.outcome.shape[0] != self.exposure.shape[0]:
+            raise Exception(
+                f"Shapes of outcome vector ({self.outcome.shape}) and exposure vector ({self.exposure.shape}) not compatable.")
 
-        Args:
-            p (int, optional): The p-norm used in the problem; defaults to 2. 
-        """
-
-        self.p = p
-        self.beta = None
-        self.weights = None
+        self.beta, self.weights = self._fit_procedure()
+        pass
 
     # TODO: fix this to align with model specification better.
     # For implementation details
-    def fit(self, outcome: np.array, exposure: np.array, ε=1e-6) -> Tuple[np.array]:
-
-        if outcome.shape[0] != exposure.shape[0]:
-            raise Exception(
-                f"Shapes of outcome vector ({outcome.shape}) and exposure vector ({exposure.shape}) not compatable.")
-
+    def _fit_procedure(self) -> Tuple[np.array]:
         i = 0
         difference = 1e6
         previous_beta = 1e6
-        weights = np.eye(N=exposure.shape[0])
+        weights = np.eye(N=self.exposure.shape[0])
 
-        while difference > ε:
-            beta = np.linalg.inv(exposure.T @ weights @
-                                 exposure) @ exposure.T @ weights @ outcome
-            weights = np.diag((outcome - exposure @ beta)**(self.p-2))
+        while difference > self.eps:
+            ew = self.exposure.T @ weights
+            beta = np.linalg.inv(ew @ self.exposure) @ ew @ self.outcome
+            weights = np.diag(
+                (self.outcome - self.exposure @ beta)**(self.p-2))
 
             difference = np.abs(np.linalg.norm(
                 previous_beta) - np.linalg.norm(beta))
             previous_beta = beta
             i += 1
 
-        self.beta = beta
-        self.weights = weights
         return beta, weights
 
     def predict(self, exposure: np.array) -> np.array:
         return exposure @ self.beta
+
+    def params(self):
+        raise Exception("Unimplemented.")
+
+    def vcov(self):
+        raise Exception("Unimplemented.")
+
+    def result(self):
+        raise Exception("Unimplemented.")
