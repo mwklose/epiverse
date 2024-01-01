@@ -6,7 +6,7 @@ from scipy.special import expit
 
 class DataGeneratorPregnancy():
 
-    def __init__(self, seed: int, parameters_file: str = "~/Downloads/Simulation parameters(1).xlsx"):
+    def __init__(self, seed: int, parameters_file: str = "epiverse/data/Simulation parameters(1).xlsx"):
         self.seed = seed
         self.rng = np.random.default_rng(seed=self.seed)
 

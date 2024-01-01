@@ -7,6 +7,7 @@ icecream
 matplotlib
 networkx
 numpy
+openpyxl
 packaging
 pandas
 pathlib
