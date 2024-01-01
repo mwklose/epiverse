@@ -1,6 +1,6 @@
 contourpy==1.0.7
 cycler==0.11.0
--e git+ssh://git@github.com/mwklose/epiverse.git@18338a286e87d417a9e76e9f33b54b2bb5e0bee3#egg=Epiverse
+-e .
 fonttools==4.39.4
 kiwisolver==1.4.4
 matplotlib==3.7.1
@@ -8,6 +8,7 @@ networkx
 numpy==1.24.3
 packaging==23.1
 pandas==2.0.1
+pathlib
 Pillow==9.5.0
 plotly==5.14.1
 pyparsing==3.0.9
@@ -16,7 +17,7 @@ python-dateutil==2.8.2
 pytz==2023.3
 scipy==1.10.1
 six==1.16.0
-sklearn==0.0.post5
+scikit-learn
 statsmodels
 tenacity==8.2.2
 tzdata==2023.3
