@@ -1,7 +1,14 @@
 import unittest
-from epiverse.utilities.math.finite_differences import second_central_difference
+from epiverse.utilities.math.finite_differences import second_central_difference, mv_derivative
 import numpy as np
+from typing import Callable
+from icecream import ic
 
+def test_mv_derivative(): 
+    f: Callable = lambda x: x[0]**2 + 5 * x[0] * x[1]**2 + 3
+    result: np.ndarray = mv_derivative(f, x0=np.array([1.0, 2.0]), epsilon=2**-10)
+    
+    assert np.allclose(result, np.array([[2, 20], [20, 10]]), rtol=1e-5)
 
 class TestFiniteDifference(unittest.TestCase):
 

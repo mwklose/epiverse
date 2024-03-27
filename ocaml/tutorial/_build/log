@@ -1,0 +1,6 @@
+# dune init proj tutorial
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Shared cache location: /Users/mark/.cache/dune/db
+# Workspace root: /Users/mark/Classes/Epi/Epiverse/ocaml/tutorial
+# Auto-detected concurrency: 8

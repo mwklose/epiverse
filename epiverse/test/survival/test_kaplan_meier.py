@@ -59,3 +59,21 @@ class TestKaplanMeier(unittest.TestCase):
                 km.predict(np.array([1, 3, 5]))
             )
         )
+
+    def test_multiple_indicators(self):
+        time = np.array([2, 4, 6, 8, 10])
+        events = np.array([1, 0, 1, 2, 1])
+
+        expected_survival = np.array([[0, 1, 0],
+                                      [2, (1 - 1/5), 0.032],
+                                      [6, (1 - 1/5) * (1 - 1/3), 0.06162963],
+                                      [10, (1 - 1/5) * (1 - 1/3) * (1 - 1/1), 0]])
+
+        km = KaplanMeier(time=time, delta=events, weights=1, event_indicator=1)
+
+        self.assertTrue(
+            np.allclose(
+                expected_survival[[0, 1, 1], :],
+                km.predict(np.array([1, 3, 5]))
+            )
+        )

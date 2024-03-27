@@ -10,7 +10,7 @@ class NelsonAalen(ModelSpecification):
 
     def fit(self, time: np.array, delta: np.array, weights: np.array = None, event_indicator: int = 1) -> np.array:
         if weights is None:
-            weights = np.ones(time.shape[0])
+            weights = np.Intercept(time.shape[0])
 
         unique_event_times = np.sort(np.unique(
             time[delta == event_indicator]

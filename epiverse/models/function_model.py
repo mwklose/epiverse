@@ -16,3 +16,7 @@ class FunctionModel(ABC):
     @abstractmethod
     def predict(self, **kwargs) -> Union[np.ndarray, pd.DataFrame]:
         pass
+
+    @abstractmethod
+    def predict_random(self, **kwargs) -> Union[np.ndarray, pd.DataFrame]:
+        pass

@@ -98,7 +98,7 @@ class PositivityConvexHull:
         constraints = [
             # Convex Constraint - have values add to 1
             sciopt.LinearConstraint(
-                np.ones(vertex_points.shape[0]), 1, 1),
+                np.Intercept(vertex_points.shape[0]), 1, 1),
             # Constraint: have all individual values be positive, between 0 and 1
             sciopt.LinearConstraint(np.identity(vertex_points.shape[0]), 0, 1)
         ]

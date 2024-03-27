@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from epiverse.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
 from epiverse.convex_hull.positivity_by_convex_hull import PositivityConvexHull
+from icecream import ic
 
 
 class TestPositivityConvexHull(unittest.TestCase):
@@ -15,8 +16,8 @@ class TestPositivityConvexHull(unittest.TestCase):
 
         pch = PositivityConvexHull(data, data, ["C1", "C2"])
 
-        self.assertTrue(len(pch.treated_convex_hull.vertices) >= 3)
-        self.assertAlmostEqual(0.5, pch.treated_convex_hull.volume, places=1)
+        assert len(pch.treated_convex_hull.vertices) >= 3
+        assert np.allclose(0.5, pch.treated_convex_hull.volume, atol=5e-2)
 
     def test_get_distance_point_to_hull(self):
         dgp = DataGeneratorPolygon(["C1", "C2"], [0, 0], [1, 0], [1, 1])
@@ -28,7 +29,7 @@ class TestPositivityConvexHull(unittest.TestCase):
         test_distance = pch.get_distance_point_to_hull(
             np.array([0, 1]), hulls)
 
-        self.assertAlmostEqual(np.sqrt(2) / 2, test_distance[0], places=3)
+        assert np.allclose(np.sqrt(2) / 2, test_distance[0], atol=5e-4)
 
         upper_trapezoid_data = DataGeneratorPolygon(
             ["C1", "C2"], [0, 2], [1, 0.5], [2, 0.5], [3, 2]).generate_data(n=100, seed=123)
@@ -41,7 +42,9 @@ class TestPositivityConvexHull(unittest.TestCase):
         wrong_distance = pch_trapezoid.get_distance_point_to_hull(
             np.array([1.40205097, 1.48760352]), pch_trapezoid.get_hull_intersection())
 
-        self.assertFalse(wrong_distance[0] > 0.1)
+        ic(wrong_distance)
+        assert False
+        assert not wrong_distance[0] > 0.1
 
     def test_check_positivity_point(self):
         upper_trapezoid_data = DataGeneratorPolygon(
@@ -52,18 +55,14 @@ class TestPositivityConvexHull(unittest.TestCase):
         pch_trapezoid = PositivityConvexHull(
             upper_trapezoid_data, lower_trapezoid_data, ["C1", "C2"])
 
-        self.assertFalse(
-            pch_trapezoid.check_point_for_positivity(np.array([0, 0])))
+        assert not pch_trapezoid.check_point_for_positivity(np.array([0, 0]))
 
-        self.assertFalse(
-            pch_trapezoid.check_point_for_positivity(np.array([4, 4])))
+        assert not pch_trapezoid.check_point_for_positivity(np.array([4, 4]))
 
         distance = pch_trapezoid.get_distance_point_to_hull(
             np.array([2, 1]), pch_trapezoid.get_hull_intersection())
 
-        self.assertTrue(
-            pch_trapezoid.check_point_for_positivity(np.array([2, 1]))
-        )
+        assert pch_trapezoid.check_point_for_positivity(np.array([2, 1]))
 
     def test_generate_distances_of_invalid_points(self):
         # 1b. Do for partial nonpositivity
@@ -83,4 +82,4 @@ class TestPositivityConvexHull(unittest.TestCase):
 
         valid, invalid = pch_trapezoid.generate_list_of_valid_points()
 
-        self.assertTrue(invalid[invalid["Distance"].isnull()].empty)
+        assert invalid[invalid["Distance"].isnull()].empty

@@ -11,7 +11,7 @@ class BinomialLogLikelihood(LogLikelihood):
         def binomial_loglikelihood(parameters: np.ndarray) -> float:
             if intercept:
                 data_with_intercept = np.hstack(
-                    (np.ones((data.shape[0], 1)), data))
+                    (np.Intercept((data.shape[0], 1)), data))
             else:
                 data_with_intercept = data
 

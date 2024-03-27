@@ -6,6 +6,8 @@ from epiverse.survival import KaplanMeier
 from dataclasses import dataclass
 from typing import Union, Callable, Tuple, List
 
+from icecream import ic
+
 
 @dataclass
 class AalenJohansen(FunctionModel):
@@ -15,10 +17,10 @@ class AalenJohansen(FunctionModel):
     event_indicator: List[int]
 
     def __post_init__(self):
-        self.unique_indicators: int = np.unique(self.delta)
+        self.unique_indicators: np.ndarray = np.unique(self.delta)
         self._is_fit, self.incidence_function = self._fit_procedure()
 
-    def estimate(self, cause: int = None) -> Callable:
+    def estimate(self, cause: int = 1) -> Callable:
         if not self._is_fit:
             raise Exception("Fitting process for AalenJohansen not completed.")
         if cause is None:
@@ -29,7 +31,7 @@ class AalenJohansen(FunctionModel):
 
         return lambda t: self.incidence_function(t, cause)
 
-    def predict(self, t, cause: int = None) -> Union[np.ndarray, pd.DataFrame]:
+    def predict(self, t, cause: int = 1) -> Union[np.ndarray, pd.DataFrame]:
         if not self._is_fit:
             raise Exception("AJ function not fit prior to prediction.")
 
@@ -38,13 +40,17 @@ class AalenJohansen(FunctionModel):
 
         return self.incidence_function(t, cause)
 
-    def _fit_procedure(self, estimate_variance: bool = True) -> Tuple[bool, List[Callable]]:
+    def predict_random(self):
+        raise Exception(
+            "Random prediction from Aalen Johansen not implemented.")
+
+    def _fit_procedure(self, estimate_variance: bool = True) -> Tuple[bool, Callable]:
         # Sort in case of batched data
         unique_event_times = np.sort(np.unique(
             self.time[np.in1d(self.delta, self.event_indicator)]
         ))
 
-        # Aalen Johansen fit process:
+        # Aalen-Johansen fit process:
         # 1. Overall survival
         overall_survival = KaplanMeier(self.time,
                                        np.in1d(
@@ -125,8 +131,10 @@ class AalenJohansen(FunctionModel):
             variance_estimates = np.vectorize(
                 lambda x: var_cum_incidence(x, cause))(t)
 
-            result = np.vstack((incidence_estimates[incidence_indices, cause],
-                                variance_estimates)).reshape(-1, 2)
+            ie = incidence_estimates[incidence_indices, cause]
+
+            result = np.vstack((ie,
+                                variance_estimates)).T
 
             return result
 

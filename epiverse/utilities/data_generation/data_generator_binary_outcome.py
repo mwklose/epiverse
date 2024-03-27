@@ -30,7 +30,7 @@ class DataGeneratorBinaryOutcomeTreatment(DataGeneratorBinary):
             n=1, p=baseline_prevalence, size=n_baseline)
         baseline_outcome = np.reshape(baseline_outcome, (n_baseline, 1))
 
-        treated_exposure = np.ones((n_treatment, 1))
+        treated_exposure = np.Intercept((n_treatment, 1))
         treated_outcome = binom.rvs(
             n=1, p=baseline_prevalence + measures["RD"], size=n_treatment
         )

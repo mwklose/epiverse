@@ -5,3 +5,6 @@ from epiverse.utilities.data_generation.data_generator_binary_outcome import Dat
 from epiverse.utilities.data_generation.data_generator_polygon import DataGeneratorPolygon
 from epiverse.utilities.data_generation.data_generator_pregnancy import DataGeneratorPregnancy
 from epiverse.utilities.data_generation.data_generator import DataGenerator
+from epiverse.utilities.data_generation.data_generator_wen_2022 import DataGeneratorWen
+from epiverse.utilities.data_generation.data_generator_wen_simulation import DataGeneratorWenSimulation
+from epiverse.utilities.data_generation.data_generator_turnbull_ghost import DataGeneratorTurnbull

@@ -5,6 +5,8 @@ from epiverse.models import FunctionModel
 from dataclasses import dataclass
 from typing import Union, Callable, Tuple
 
+from icecream import ic
+
 
 @dataclass
 class KaplanMeier(FunctionModel):
@@ -26,6 +28,10 @@ class KaplanMeier(FunctionModel):
             raise Exception("KM function not fit prior to prediction.")
         return self.survival_function(t)
 
+    def predict_random(self):
+        raise Exception(
+            "Random prediction from Kaplan Meier not implemented.")
+
     def _fit_procedure(self) -> Tuple[bool, Callable]:
         # Sort in case of batched data
         unique_event_times = np.sort(np.unique(
@@ -33,11 +39,12 @@ class KaplanMeier(FunctionModel):
         ))
 
         def hazard_function(t): return np.sum(
-            self.weights * (self.time * self.delta == t)) / np.sum(self.weights * (self.time >= t))
+            self.weights * ((self.time == t).astype(int) * (self.delta == self.event_indicator).astype(int))) / np.sum(self.weights * (self.time >= t).astype(int))
 
         def greenwood_accumulation(t):
-            di = np.sum(self.weights * (self.time * self.delta == t))
-            ni = np.sum(self.weights * (self.time >= t))
+            di = np.sum(self.weights * (self.time == t).astype(int) *
+                        (self.delta == self.event_indicator).astype(int))
+            ni = np.sum(self.weights * (self.time >= t).astype(int))
             if ni == di:
                 return 0
             return di / (ni * (ni - di))
@@ -46,7 +53,6 @@ class KaplanMeier(FunctionModel):
         var_hazard = np.vectorize(greenwood_accumulation)(unique_event_times)
 
         survival_probability = np.cumprod(1 - hazard)
-
         greenwood_formula = np.square(
             survival_probability) * np.cumsum(var_hazard)
 
@@ -55,6 +61,8 @@ class KaplanMeier(FunctionModel):
              np.column_stack(
                 (unique_event_times, survival_probability, greenwood_formula)))
         )
+
+        self.survival_estimates = survival_estimates
 
         def survival_estimate(t: Union[np.ndarray, float]) -> np.ndarray:
             """Returns the time, survival estimate, and variance for the observed time. 

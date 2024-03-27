@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from epiverse.models.model_specification import ModelSpecification
 
-
-class OutcomeModelSpecification(ModelSpecification, ABC):
+class OutcomeModelSpecification(ABC):
 
     def __init__(self):
         self._is_fit = False
