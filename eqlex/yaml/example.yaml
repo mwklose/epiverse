@@ -1,0 +1,10 @@
+name: testexample
+
+variables: 
+  x: 
+    distributed: normal
+    mean: 10
+    sd: 2
+  y: 
+    distributed: bern
+    p: 0.1 + x / 30
