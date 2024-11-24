@@ -1,6 +1,5 @@
 from typing import List, Generator, Tuple
-from eqlex.lexer.tokens.token import EqlexToken
-from eqlex.lexer.tokens.token_types import TokenType
+from eqlex.lexer import EqlexToken, TokenType
 from dataclasses import dataclass, field
 
 @dataclass

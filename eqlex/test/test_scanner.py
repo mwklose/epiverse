@@ -1,4 +1,4 @@
-from eqlex.lexer.tokens import Scanner, EqlexToken, TokenType
+from eqlex.lexer import Scanner, EqlexToken, TokenType
 
 
 def test_one_plus_two(): 

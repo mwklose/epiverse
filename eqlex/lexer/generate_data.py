@@ -6,7 +6,7 @@ from pprint import pprint
 pprint([mod for mod in pkgutil.iter_modules()])
 
 
-from lexer.tokens.scanner import Scanner
+from eqlex.lexer.scanner import Scanner
 
 def run_example() -> None:
 
