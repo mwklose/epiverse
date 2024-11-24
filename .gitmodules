@@ -1,0 +1,6 @@
+[submodule "multiple-imputation-sim"]
+	path = multiple-imputation-sim
+	url = git@github.com:mwklose/multiple-imputation-sim.git
+[submodule "sim-data-generator"]
+	path = sim-data-generator
+	url = git@github.com:mwklose/sim-data-generator.git

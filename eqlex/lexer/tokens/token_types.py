@@ -55,3 +55,4 @@ class TokenType(Enum):
 
     # EOF
     EOF = "EOF"
+    UNKNOWN = "UNKNOWN"

@@ -55,19 +55,19 @@ class Scanner():
                 # Otherwise, should be subtraction
                 return EqlexToken(type=TokenType.MINUS, lexeme=str(current_char), literal=str(current_char)), idx + 1, True
             
-            case TokenType.EQ:
+            case "=":
                 if idx+1 < len(self.source) and self.source[idx+1] == "!": 
-                    return EqlexToken(type=TokenType.EQ_EQ, lexeme=self.source[idx:idx+2], literal=self.source[idx:idx+2]), idx+2, True
-                return EqlexToken(type=current_char, lexeme=str(current_char), literal=str(current_char)), idx + 1, True
+                    return EqlexToken(type=current_char, lexeme=str(current_char), literal=str(current_char)), idx + 1, True
+               
                 
-            case TokenType.GT:
+            case ">":
                 if idx+1 < len(self.source) and self.source[idx+1] == "=": 
                     return EqlexToken(type=TokenType.GTE, lexeme=self.source[idx:idx+2], literal=self.source[idx:idx+2]), idx+2, True
-                return EqlexToken(type=current_char, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
-            case TokenType.LT:
+                return EqlexToken(type=TokenType.GT, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
+            case "<":
                 if idx+1 < len(self.source) and self.source[idx+1] == "=": 
                     return EqlexToken(type=TokenType.LTE, lexeme=self.source[idx:idx+2], literal=self.source[idx:idx+2]), idx+2, True
-                return EqlexToken(type=current_char, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
+                return EqlexToken(type=TokenType.LT, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
 
             case _: 
                 # Handle matching distributions

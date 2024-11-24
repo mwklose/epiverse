@@ -218,23 +218,124 @@ def test_negbinom():
         assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
 
 def test_weibull(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * WEIBULL(10, A)")
 
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.WEIBULL, lexeme="WEIBULL", literal="WEIBULL"),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
+        EqlexToken(type=TokenType.NUMBER, lexeme="10", literal="10"),
+        EqlexToken(type=TokenType.COMMA, lexeme=",", literal=","),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
+
+
+    
 def test_expon(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * EXPON( A)")
+
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.EXPON, lexeme="EXPON", literal="EXPON"),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
+
 
 def test_ge(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * A > 5")
+
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.GT, lexeme=">", literal=">"),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
 
 def test_gte(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * A >= 5")
+
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.GTE, lexeme=">=", literal=">="),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
 
 def test_lt(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * A < 5")
+
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.LT, lexeme="<", literal="<"),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
+
 
 def test_lte(): 
-    ...
+    idscanner = Scanner("0.25 + 0.5 * A <= 5")
 
+    expected_tokens: list[EqlexToken] = [
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
+        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
+        EqlexToken(type=TokenType.LTE, lexeme="<=", literal="<="),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
+        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+    ]
+
+    assert len(idscanner.token_list) == len(expected_tokens)
+    for i, token in enumerate(idscanner.token_list): 
+        assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
+
+
+
+    ...
 # Edge cases: 
 # 1. Invalid organization? 
 # 2. Identifier names that overlap partially with distributions
@@ -255,4 +356,4 @@ def test_bernie():
         assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
         
 # 3. Identifier names that overlap partially with functions
-# 4. 
+# 4. Identifier names with underscores? 
