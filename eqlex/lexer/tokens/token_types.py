@@ -1,50 +1,57 @@
 from enum import Enum, auto
 
-class TokenType(Enum): 
+class TokenType(Enum):
     # Syntax Tokens
-    LEFT_PAREN = auto()
-    RIGHT_PAREN = auto()
-    COMMA = auto()
-    DOT = auto()
+    LEFT_PAREN = "("
+    RIGHT_PAREN = ")"
+    COMMA = ","
+    DOT = "."
 
     # Binary operator Tokens
-    PLUS = auto()
-    MINUS = auto()
-    STAR = auto()
-    SLASH = auto()
+    PLUS = "+"
+    MINUS = "-"
+    STAR = "*"
+    SLASH = "/"
 
     # TODO: semicolon?
 
     # Logical Operators
-    BANG = auto()
-    BANG_EQ = auto()
-    EQ = auto()
-    EQ_EQ = auto()
-    GT = auto()
-    GTE = auto()
-    LT = auto()
-    LTE = auto()
-    ORBAR = auto()
-    AMPERSAND = auto()
+    BANG = "!"
+    EQ = "="
+    EQ_EQ = "=="
+    GT = ">"
+    GTE = ">="
+    LT = "<"
+    LTE = "<="
+    ORBAR = "|"
+    AMPERSAND = "&"
 
     # Literals
-    IDENTIFIER = auto()
-    STRING = auto()
-    NUMBER = auto()
-    
+    IDENTIFIER = "ID"
+    NUMBER = "NUM"
+
     # Distributions
     # TODO: add more distributions?
-    BERN = auto()
-    NORMAL = auto()
-    BINOM = auto()
-    POISSON = auto()
-    NEGBIN = auto()
-    WEIBULL = auto()
-    
+    BERN = "BERN"
+    NORMAL = "NORM"
+    BINOM = "BINOM"
+    POISSON = "POISSON"
+    NEGBIN = "NEGBINOM"
+    WEIBULL = "WEIBULL"
+    EXPON = "EXPON"
 
+    # Known Functions
+    FLOOR = "FLOOR"
+    CEIL = "CEIL"
+    LOG = "LOG"
+    LOGIT = "LOGIT"
+    EXP = "EXP"
+    EXPIT = "EXPIT"
+    SQRT = "SQRT"
+    POW = "POW"
+    
     # Keywords?
     
 
     # EOF
-    EOF = auto()
-    ...
+    EOF = "EOF"
