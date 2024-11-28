@@ -5,8 +5,7 @@ from eqlex.lexer.token_types import TokenType
 class EqlexToken(): 
     type: TokenType
     lexeme: str
-    literal: str
-    n_args: int
+    n_args: int = 0
     precedence: int = 0
 
     def __str__(self) -> str:

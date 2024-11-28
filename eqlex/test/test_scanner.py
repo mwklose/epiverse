@@ -1,14 +1,14 @@
 from eqlex.lexer import Scanner, EqlexToken, TokenType
-
+from eqlex.lexer.scanner import PARENTHESIS_PRECEDENCE, FUNC_PRECEDENCE, MULT_PRECEDENCE, ADDITION_PRECEDENCE, LOGICAL_PRECEDENCE, LITERAL_PRECEDENCE
 
 def test_one_plus_two(): 
     myscanner = Scanner("1+2")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="1", literal="1"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"), 
-        EqlexToken(type=TokenType.NUMBER, lexeme="2", literal="2"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="1", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.NUMBER, lexeme="2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     
@@ -22,10 +22,10 @@ def test_one_plus_two_spaces():
     myscanner = Scanner("1 + 2")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="1", literal="1"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"), 
-        EqlexToken(type=TokenType.NUMBER, lexeme="2", literal="2"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="1", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.NUMBER, lexeme="2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     
@@ -40,10 +40,10 @@ def test_one_plus_two_multiple_spaces():
     myscanner = Scanner("1  +   2")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="1", literal="1"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"), 
-        EqlexToken(type=TokenType.NUMBER, lexeme="2", literal="2"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="1", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.NUMBER, lexeme="2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     
@@ -58,10 +58,10 @@ def test_id_plus_number():
     idscanner = Scanner("A + 2")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"), 
-        EqlexToken(type=TokenType.NUMBER, lexeme="2", literal="2"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.NUMBER, lexeme="2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner_nospaces.token_list) == len(expected_tokens)
@@ -77,20 +77,20 @@ def test_arithmetic():
     idscanner = Scanner("2 * A + 5 * (B - C) / 10")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="2", literal="2"), 
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"), 
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"), 
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="B", literal="B"),
-        EqlexToken(type=TokenType.MINUS, lexeme="-", literal="-"), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="C", literal="C"), 
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"), 
-        EqlexToken(type=TokenType.SLASH, lexeme="/", literal="/"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="10", literal="10"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.STAR, lexeme="*", n_args=2, precedence=MULT_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE), 
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="B", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.MINUS, lexeme="-", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="C", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE), 
+        EqlexToken(type=TokenType.SLASH, lexeme="/",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="10", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -101,20 +101,20 @@ def test_arithmetic_with_negative():
     idscanner = Scanner("-2 * A + 5 * (B - C) / -10")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="-2", literal="-2"), 
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"), 
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"), 
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="B", literal="B"),
-        EqlexToken(type=TokenType.MINUS, lexeme="-", literal="-"), 
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="C", literal="C"), 
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"), 
-        EqlexToken(type=TokenType.SLASH, lexeme="/", literal="/"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="-10", literal="-10"), 
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="-2", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE), 
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="B", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.MINUS, lexeme="-", n_args=2, precedence=ADDITION_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="C", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.SLASH, lexeme="/",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="-10", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -125,10 +125,10 @@ def test_multichar_id():
     idscanner = Scanner("5 * AB")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"), 
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),  
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="AB", literal="AB"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),  
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="AB", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -139,15 +139,15 @@ def test_bern():
     idscanner = Scanner("0.25 + 0.5 * BERN(0.5)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.BERN, lexeme="BERN", literal="BERN"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.BERN, lexeme="BERN", n_args=1, precedence=FUNC_PRECEDENCE),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -158,17 +158,17 @@ def test_norm():
     idscanner = Scanner("0.25 + 0.5 * NORM(0, 1)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.NORMAL, lexeme="NORM", literal="NORM"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.NUMBER, lexeme="0", literal="0"),
-        EqlexToken(type=TokenType.COMMA, lexeme=",", literal=","),
-        EqlexToken(type=TokenType.NUMBER, lexeme="1", literal="1"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*", n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.NORMAL, lexeme="NORM", n_args=2, precedence=FUNC_PRECEDENCE),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="0", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.COMMA, lexeme=",", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="1", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -179,17 +179,17 @@ def test_poisson():
     idscanner = Scanner("0.25 + 0.5 * POISSON(10 + A)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.POISSON, lexeme="POISSON", literal="POISSON"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.NUMBER, lexeme="10", literal="10"),
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.POISSON, lexeme="POISSON", n_args=1, precedence=FUNC_PRECEDENCE),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="10", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -200,17 +200,17 @@ def test_negbinom():
     idscanner = Scanner("0.25 + 0.5 * NEGBINOM(10, A)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.NEGBIN, lexeme="NEGBINOM", literal="NEGBINOM"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.NUMBER, lexeme="10", literal="10"),
-        EqlexToken(type=TokenType.COMMA, lexeme=",", literal=","),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.NEGBIN, lexeme="NEGBINOM", n_args=2, precedence=FUNC_PRECEDENCE),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="10", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.COMMA, lexeme=",", precedence=PARENTHESIS_PRECEDENCE),  
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -221,17 +221,17 @@ def test_weibull():
     idscanner = Scanner("0.25 + 0.5 * WEIBULL(10, A)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.WEIBULL, lexeme="WEIBULL", literal="WEIBULL"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.NUMBER, lexeme="10", literal="10"),
-        EqlexToken(type=TokenType.COMMA, lexeme=",", literal=","),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.WEIBULL, lexeme="WEIBULL", n_args=2, precedence=FUNC_PRECEDENCE),  
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="10", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.COMMA, lexeme=",", precedence=PARENTHESIS_PRECEDENCE), 
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -244,15 +244,15 @@ def test_expon():
     idscanner = Scanner("0.25 + 0.5 * EXPON( A)")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.EXPON, lexeme="EXPON", literal="EXPON"),
-        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", literal="("),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", literal=")"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.EXPON, lexeme="EXPON", n_args=1, precedence=FUNC_PRECEDENCE),
+        EqlexToken(type=TokenType.LEFT_PAREN, lexeme="(", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.RIGHT_PAREN, lexeme=")", precedence=PARENTHESIS_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -264,14 +264,14 @@ def test_ge():
     idscanner = Scanner("0.25 + 0.5 * A > 5")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.GT, lexeme=">", literal=">"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.GT, lexeme=">", n_args=2, precedence=LOGICAL_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -282,14 +282,14 @@ def test_gte():
     idscanner = Scanner("0.25 + 0.5 * A >= 5")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.GTE, lexeme=">=", literal=">="),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.GTE, lexeme=">=", n_args=2, precedence=LOGICAL_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -300,14 +300,14 @@ def test_lt():
     idscanner = Scanner("0.25 + 0.5 * A < 5")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.LT, lexeme="<", literal="<"),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.LT, lexeme="<", n_args=2, precedence=LOGICAL_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
@@ -319,19 +319,20 @@ def test_lte():
     idscanner = Scanner("0.25 + 0.5 * A <= 5")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", literal="A"),
-        EqlexToken(type=TokenType.LTE, lexeme="<=", literal="<="),
-        EqlexToken(type=TokenType.NUMBER, lexeme="5", literal="5"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="A", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.LTE, lexeme="<=", n_args=2, precedence=LOGICAL_PRECEDENCE),
+        EqlexToken(type=TokenType.NUMBER, lexeme="5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)
     for i, token in enumerate(idscanner.token_list): 
         assert token == expected_tokens[i], f"Expected {expected_tokens[i]}, received {token}"
+
 
 
 
@@ -343,12 +344,12 @@ def test_bernie():
     idscanner = Scanner("0.25 + 0.5 * BERNIE")
 
     expected_tokens: list[EqlexToken] = [
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", literal="0.25"), 
-        EqlexToken(type=TokenType.PLUS, lexeme="+", literal="+"),  
-        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", literal="0.5"),
-        EqlexToken(type=TokenType.STAR, lexeme="*", literal="*"),
-        EqlexToken(type=TokenType.IDENTIFIER, lexeme="BERNIE", literal="BERNIE"),
-        EqlexToken(type=TokenType.EOF, lexeme="", literal="")
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.25", precedence=LITERAL_PRECEDENCE), 
+        EqlexToken(type=TokenType.PLUS, lexeme="+", n_args=2, precedence=ADDITION_PRECEDENCE),  
+        EqlexToken(type=TokenType.NUMBER, lexeme="0.5", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.STAR, lexeme="*",  n_args=2, precedence=MULT_PRECEDENCE),
+        EqlexToken(type=TokenType.IDENTIFIER, lexeme="BERNIE", precedence=LITERAL_PRECEDENCE),
+        EqlexToken(type=TokenType.EOF, lexeme="") 
     ]
 
     assert len(idscanner.token_list) == len(expected_tokens)

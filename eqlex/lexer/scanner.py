@@ -1,6 +1,14 @@
-from typing import List, Generator, Tuple
+from typing import Dict, List, Generator, Tuple
 from eqlex.lexer import EqlexToken, TokenType
 from dataclasses import dataclass, field
+from eqlex.lexer.shunting_yard import ReversePolishNotationList
+
+PARENTHESIS_PRECEDENCE = 5
+FUNC_PRECEDENCE = 4
+MULT_PRECEDENCE = 3
+ADDITION_PRECEDENCE = 2
+LOGICAL_PRECEDENCE = 1 
+LITERAL_PRECEDENCE = 0
 
 @dataclass
 class Scanner():
@@ -9,6 +17,7 @@ class Scanner():
 
     def __post_init__(self) -> None:
         self.token_list = [tok for tok in self._generate_tokens() if tok is not None]
+        self.reverse_polish_notation = ReversePolishNotationList(input_token_list=self.token_list)
 
     def _generate_tokens(self) -> Generator[EqlexToken | None, None, None]:
         current: int = 0
@@ -27,7 +36,7 @@ class Scanner():
         """
 
         if idx >= len(self.source): 
-            return EqlexToken(type=TokenType.EOF, lexeme="", literal=""), idx, False
+            return EqlexToken(type=TokenType.EOF, lexeme=""), idx, False
 
         
         current_char = self.source[idx]
@@ -36,8 +45,16 @@ class Scanner():
             case " ": 
                 # Ignore whitespace ...
                 return None, idx + 1, True
-            case "(" | ")" | "," | "." | "+" | "*" | "/" | "!" | "|" | "&":
-                return EqlexToken(type=TokenType(current_char), lexeme=str(current_char), literal=str(current_char)), idx + 1, True
+            case "(" | ")" | "." | ",":
+                return EqlexToken(type=TokenType(current_char), lexeme=str(current_char), precedence=PARENTHESIS_PRECEDENCE), idx + 1, True
+            case "|" | "&":
+                return EqlexToken(type=TokenType(current_char), lexeme=current_char, n_args=1, precedence=LOGICAL_PRECEDENCE), idx + 1, True
+
+            case "+": 
+                return EqlexToken(type=TokenType(current_char), lexeme=current_char, n_args=2, precedence=ADDITION_PRECEDENCE), idx + 1, True
+
+            case "*" | "/": 
+                return EqlexToken(type=TokenType(current_char), lexeme=current_char, n_args=2, precedence=MULT_PRECEDENCE), idx + 1, True
 
             case "-":
                 # Negative versus subtract
@@ -50,44 +67,64 @@ class Scanner():
                         end_idx += 1
 
                     # However, at the end, return both the negative and what is beyond.
-                    return EqlexToken(type=TokenType.NUMBER, lexeme=self.source[(idx):(end_idx-1)], literal=self.source[(idx):(end_idx-1)]), end_idx, True
+                    return EqlexToken(type=TokenType.NUMBER, lexeme=self.source[(idx):(end_idx-1)], precedence=LITERAL_PRECEDENCE), end_idx, True
                 # Otherwise, should be subtraction
-                return EqlexToken(type=TokenType.MINUS, lexeme=str(current_char), literal=str(current_char)), idx + 1, True
+                return EqlexToken(type=TokenType.MINUS, lexeme=str(current_char), n_args=2, precedence=ADDITION_PRECEDENCE), idx + 1, True
             
-            case "=":
-                if idx+1 < len(self.source) and self.source[idx+1] == "!": 
-                    return EqlexToken(type=current_char, lexeme=str(current_char), literal=str(current_char)), idx + 1, True
-               
-                
+            case "!":
+                if idx+1 < len(self.source) and self.source[idx+1] == "=": 
+                    return EqlexToken(type=TokenType.NEQ, lexeme="!=", n_args=2, precedence=LOGICAL_PRECEDENCE), idx + 1, True
+                return EqlexToken(type=TokenType.BANG, lexeme=current_char, n_args=1, precedence=LOGICAL_PRECEDENCE), idx + 1, True
+
+            case "=": 
+                if idx+1 < len(self.source) and self.source[idx+1] == "=": 
+                    return EqlexToken(type=TokenType.EQ_EQ, lexeme="==", n_args=2, precedence=LOGICAL_PRECEDENCE), idx + 1, True
+
             case ">":
                 if idx+1 < len(self.source) and self.source[idx+1] == "=": 
-                    return EqlexToken(type=TokenType.GTE, lexeme=self.source[idx:idx+2], literal=self.source[idx:idx+2]), idx+2, True
-                return EqlexToken(type=TokenType.GT, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
+                    return EqlexToken(type=TokenType.GTE, lexeme=self.source[idx:idx+2], n_args=2, precedence=LOGICAL_PRECEDENCE), idx+2, True
+                return EqlexToken(type=TokenType.GT, lexeme=str(object=current_char), n_args=2, precedence=LOGICAL_PRECEDENCE), idx + 1, True
+
             case "<":
                 if idx+1 < len(self.source) and self.source[idx+1] == "=": 
-                    return EqlexToken(type=TokenType.LTE, lexeme=self.source[idx:idx+2], literal=self.source[idx:idx+2]), idx+2, True
-                return EqlexToken(type=TokenType.LT, lexeme=str(object=current_char), literal=str(object=current_char)), idx + 1, True
+                    return EqlexToken(type=TokenType.LTE, lexeme=self.source[idx:idx+2], n_args=2, precedence=LOGICAL_PRECEDENCE), idx+2, True
+                return EqlexToken(type=TokenType.LT, lexeme=str(object=current_char), n_args=2, precedence=LOGICAL_PRECEDENCE), idx + 1, True
 
             case _: 
                 # Handle matching distributions
                 if current_char.isalpha(): 
-
-                    distribution_list = ["BERN", "NORM", "POISSON", "NEGBINOM", "WEIBULL", "EXPON"]
-                    for distribution in distribution_list: 
+                    
+                    distribution_dict: Dict[str, int] = {
+                       "BERN": 1, 
+                       "NORM": 2, 
+                       "POISSON": 1, 
+                       "NEGBINOM": 2, 
+                       "WEIBULL": 2, 
+                       "EXPON": 1
+                    }
+                    for distribution, nargs in distribution_dict.items(): 
                         if idx+len(distribution)+1 < len(self.source) and self.source[idx:(idx+len(distribution)+1)] == f"{distribution}(": 
-                            return EqlexToken(TokenType(distribution), lexeme=distribution, literal=distribution), idx + len(distribution), True
-                            
-                    function_list = ["FLOOR", "CEIL", "LOG", "LOGIT", "EXP", "EXPIT", "SQRT", "POW"]
-                    for func in function_list: 
+                            return EqlexToken(TokenType(distribution), lexeme=distribution, n_args=nargs, precedence=FUNC_PRECEDENCE), idx + len(distribution), True
+
+                    function_dict = {
+                        "FLOOR": 1,
+                        "CEIL": 1,
+                        "LOG": 1, 
+                        "LOGIT": 1, 
+                        "EXP": 1, 
+                        "EXPIT": 1, 
+                        "SQRT": 1, 
+                        "POW": 2
+                    } 
+                    for func, nargs in function_dict.items(): 
                         if idx+len(func) < len(self.source) and self.source[idx:(idx+len(func)+1)] == f"{func}(": 
-                            breakpoint()
-                            return EqlexToken(TokenType(func), lexeme=func, literal=func), idx + len(func), True
+                            return EqlexToken(TokenType(func), lexeme=func, n_args=nargs, precedence=FUNC_PRECEDENCE), idx + len(func), True
 
                     end_idx = idx+1
                     while end_idx <= len(self.source) and self.source[(idx):(end_idx)].isalnum(): 
                         end_idx += 1
                         
-                    return EqlexToken(type=TokenType.IDENTIFIER, lexeme=self.source[(idx):(end_idx-1)], literal=self.source[(idx):(end_idx-1)]), end_idx-1, True
+                    return EqlexToken(type=TokenType.IDENTIFIER, lexeme=self.source[(idx):(end_idx-1)], precedence=LITERAL_PRECEDENCE), end_idx-1, True
                     
                 # Handle literal numbers
                 elif current_char.isdecimal():
@@ -95,7 +132,7 @@ class Scanner():
                     end_idx = idx+1
                     while end_idx <= len(self.source) and self.source[(idx):(end_idx)].replace(".", "", count=1).isdecimal(): 
                         end_idx += 1
-                    return EqlexToken(type=TokenType.NUMBER, lexeme=self.source[(idx):(end_idx-1)], literal=self.source[(idx):(end_idx-1)]), end_idx-1, True
+                    return EqlexToken(type=TokenType.NUMBER, lexeme=self.source[(idx):(end_idx-1)], precedence=LITERAL_PRECEDENCE), end_idx-1, True
 
                 else: 
                     print(f"{current_char=}")
@@ -103,4 +140,3 @@ class Scanner():
 
         
         raise Exception(f"[Scanner::_get_next_token] Unmatched character: {current_char} with source {self.source} and idx {idx}")
-

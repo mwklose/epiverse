@@ -21,6 +21,7 @@ class TokenType(Enum):
     BANG = "!"
     EQ = "="
     EQ_EQ = "=="
+    NEQ = "!="
     GT = ">"
     GTE = ">="
     LT = "<"
